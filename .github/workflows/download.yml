@@ -1,0 +1,33 @@
+name: YouTube Downloader
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: 'لینک ویدیوی یوتیوب را وارد کنید'
+        required: true
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install yt-dlp
+      run: pip install yt-dlp
+
+    - name: Download Video
+      run: |
+        mkdir downloaded_video
+        cd downloaded_video
+        yt-dlp -f "best" "${{ github.event.inputs.video_url }}"
+
+    - name: Upload Video as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: MyVideo
+        path: downloaded_video/
