@@ -1,52 +1,28 @@
-name: Cobalt YouTube Downloader
+name: '🚇 SSH Tunnel (tmate)'
 
 on:
   workflow_dispatch:
-    inputs:
-      video_url:
-        description: 'لینک ویدیوی یوتیوب را اینجا وارد کنید'
-        required: true
-        type: string
 
 jobs:
-  download_video:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: '⬇️ Check out repository'
         uses: actions/checkout@v4
 
-      - name: Get Direct Link from Cobalt API
-        id: api_call
-        run: |
-          echo "درخواست لینک مستقیم از Cobalt..."
-          
-          # ارسال درخواست به API
-          RESPONSE=$(curl -s -X POST "https://api.cobalt.tools/api/json" \
-            -H "Accept: application/json" \
-            -H "Content-Type: application/json" \
-            -d '{"url": "${{ github.event.inputs.video_url }}"}')
-          
-          # استخراج لینک دانلود از جواب سرور با استفاده از jq
-          DOWNLOAD_URL=$(echo $RESPONSE | jq -r '.url')
-          
-          if [ "$DOWNLOAD_URL" == "null" ] || [ -z "$DOWNLOAD_URL" ]; then
-            echo "❌ خطا در دریافت لینک. پاسخ سرور:"
-            echo $RESPONSE
-            exit 1
-          fi
-          
-          echo "لینک دریافت شد!"
-          echo "DOWNLOAD_URL=$DOWNLOAD_URL" >> $GITHUB_ENV
-
-      - name: Download the Video
-        run: |
-          echo "در حال دانلود فایل..."
-          # دانلود ویدیو با لینک مستقیم
-          wget -O downloaded_video.mp4 "${{ env.DOWNLOAD_URL }}"
-
-      - name: Upload Video as Artifact
-        uses: actions/upload-artifact@v4
+      - name: '⚙️ Set up Python'
+        uses: actions/setup-python@v5
         with:
-          name: YouTube-Video
-          path: downloaded_video.mp4
+          python-version: '3.10'
+
+      - name: '📦 Install yt-dlp & ffmpeg (Optional)'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          pip install -U yt-dlp
+
+      - name: '🚇 Setup tmate session'
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: false
