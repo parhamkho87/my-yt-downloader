@@ -1,28 +1,10 @@
-name: '🚇 SSH Tunnel (tmate)'
-
-on:
-  workflow_dispatch:
-
 jobs:
-  build:
+  debug_job:
     runs-on: ubuntu-latest
-
     steps:
-      - name: '⬇️ Check out repository'
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: '⚙️ Set up Python'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: '📦 Install yt-dlp & ffmpeg (Optional)'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          pip install -U yt-dlp
-
-      - name: '🚇 Setup tmate session'
+      # ایجاد دسترسی SSH به سرور لینوکسی گیت‌هاب
+      - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: false
